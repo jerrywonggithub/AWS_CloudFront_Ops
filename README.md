@@ -44,3 +44,63 @@ response = client.create_invalidation(
 )
 ```
 
+
+### CW 指标获取
+>AWS CLI
+
+```
+aws cloudwatch get-metric-statistics \
+--start-time 2022-09-01T04:05:00Z \
+--end-time 2022-09-05T04:10:00Z \
+--namespace "AWS/CloudFront" \
+--statistics Sum \
+--period 300 \
+--metric-name Requests \
+--dimensions Name=DistributionId,Value=E32W5ITLCPXXXX Name=Region,Value=Global \
+--region us-east-1
+```
+
+>boto3 demo
+```
+import json
+import boto3
+from datetime import datetime
+
+if __name__ == '__main__':
+
+    client = boto3.client('cloudwatch')
+    response = client.get_metric_statistics(
+        Namespace='AWS/CloudFront',
+        MetricName='Requests',
+        Dimensions=[
+            {
+                'Name': 'DistributionId',
+                'Value': 'E32W5ITLCXXXXX'
+            },
+            {
+                'Name': 'Region',
+                'Value': 'Global'
+            }
+        ],
+        # StartTime='2022-09-05T04:05:00Z',
+        # EndTime='2022-09-05T04:10:00Z',
+        StartTime=datetime(2022, 9, 4),
+        EndTime=datetime(2022, 9, 5),
+        Period=300,
+        Statistics=[
+            'Sum'
+        ],
+        # [
+        #      'SampleCount'|'Average'|'Sum'|'Minimum'|'Maximum',
+        # ],
+        # ExtendedStatistics=[
+        #     'string',
+        # ],
+        Unit='None'
+        # Unit='Seconds'|'Microseconds'|'Milliseconds'|'Bytes'|'Kilobytes'|'Megabytes'|'Gigabytes'|'Terabytes'|'Bits'|'Kilobits'|'Megabits'|'Gigabits'|'Terabits'|'Percent'|'Count'|'Bytes/Second'|'Kilobytes/Second'|'Megabytes/Second'|'Gigabytes/Second'|'Terabytes/Second'|'Bits/Second'|'Kilobits/Second'|'Megabits/Second'|'Gigabits/Second'|'Terabits/Second'|'Count/Second'|'None'
+    )
+    # print(type(response))
+    requests = response['Datapoints'][0]['Sum']
+    print('demo请求数为：' + str(requests))
+
+```
